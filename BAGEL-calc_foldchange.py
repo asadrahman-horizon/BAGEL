@@ -56,11 +56,11 @@ MIN_READS = 30
 try:
     opts, args = getopt.getopt(sys.argv[1:], "hi:o:c:", ["minreads=","help"])
 except getopt.GetoptError:
-    print helptext
+    print (helptext)
 sys.exit(2)
 for opt, arg in opts:
     if opt in ( '-h', '--help'):
-        print helptext
+        print (helptext)
         sys.exit()
     elif opt == '-i':
         readcountfile = arg
