@@ -138,7 +138,7 @@ for line in fin:
     for i in column_list:
         fc[gsym].append( float(fields[i + 1]))		# per user docs, GENE is column 0, first data column is col 1.
 genes_array = np.asarray( list(genes.keys()))
-gene_idx = arange(len( genes ))
+gene_idx = np.arange(len( genes ))
 #print("Number of gRNA loaded:  " + str( len(genes_array) ))
 #print("genes_array:  " + str(genes_array))
 # print("Genes:  " + str(genes))
@@ -221,13 +221,13 @@ for loop in range(NUM_BOOTSTRAPS):
         #
         # define empirical upper and lower bounds within which to calculate BF = f(fold change)
         #
-        x = arange(-10,2,0.01)
+        x = np.arange(-10,2,0.01)
         nonfitx = knon.evaluate(x)
         # define lower bound empirical fold change threshold:  minimum FC where knon is above threshold
         f = where( nonfitx > FC_THRESH)
         xmin = round_to_hundredth( min(x[f]) )
         # define upper bound empirical fold change threshold:  minimum value of log2(ess/non)
-        subx = arange( xmin, max(x[f]), 0.01)
+        subx = np.arange( xmin, max(x[f]), 0.01)
         logratio_sample = log2( kess.evaluate(subx) / knon.evaluate(subx) )
         f = where( logratio_sample == logratio_sample.min() )
         xmax = round_to_hundredth( subx[f] )
@@ -236,7 +236,7 @@ for loop in range(NUM_BOOTSTRAPS):
         # precalculate logratios and build lookup table (for speed)
         #
         logratio_lookup = {}
-        for i in arange(xmin, xmax+0.01, 0.01):
+        for i in np.arange(xmin, xmax+0.01, 0.01):
             logratio_lookup[round(i*100)] = log2( kess.evaluate(i) / knon.evaluate(i) )
         #
         # calculate BFs from lookup table for withheld test set
