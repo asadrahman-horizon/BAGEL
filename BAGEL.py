@@ -20,6 +20,12 @@ import numpy as np
 import scipy.stats as stats
 import sys, getopt
 
+
+# In[ ]:
+
+
+
+
 helptext = ('\n'
 		   'BAGEL.py -i [fold change file] -o [output file] -e [reference essentials] -n [reference nonessentials] -c [columns to test]\n' 
 		   '\n'
@@ -115,7 +121,7 @@ def bootstrap_resample(X, n=None):
     if n == None:
             n = len(X)
 
-    resample_i = floor(random.rand(n)*len(X)).astype(int)
+    resample_i = np.floor(np.random.rand(n)*len(X)).astype(int)
     X_resample = X[resample_i]
     return X_resample
 
@@ -154,7 +160,7 @@ fin = open(ess_ref)
 for line in fin:
 	coreEss.append( line.rstrip().split('\t')[0] )
 fin.close()
-coreEss=array(coreEss)
+coreEss=np.array(coreEss)
 print("Number of reference essentials: " + str(len(coreEss)))
 
 nonEss = []
@@ -162,7 +168,7 @@ fin = open(non_ref)
 for line in fin:
     nonEss.append( line.rstrip().split('\t')[0] )
 fin.close()
-nonEss = array(nonEss)
+nonEss = np.array(nonEss)
 print("Number of reference nonessentials: " + str(len(nonEss)))
 
 #
@@ -186,15 +192,15 @@ for loop in range(NUM_BOOTSTRAPS):
     #
     # test set for this iteration is everything not selected in bootstrap resampled training set
     #
-    gene_test_idx = setxor1d(gene_idx, gene_train_idx)
+    gene_test_idx = np.setxor1d(gene_idx, gene_train_idx)
     #
     # define essential and nonessential training sets:  arrays of indexes
     #
     
 #     print (gene_train_idx)
 #     print (coreEss)
-    train_ess = where( in1d( genes_array[gene_train_idx], coreEss))[0]
-    train_non = where( in1d( genes_array[gene_train_idx], nonEss))[0]
+    train_ess = np.where( np.in1d( genes_array[gene_train_idx], coreEss))[0]
+    train_non = np.where( np.in1d( genes_array[gene_train_idx], nonEss))[0]
     print("{},{},{},{}".format(str(loop), len(train_ess),len(train_non), len(gene_test_idx)))
     sys.stdout.flush()
     #
@@ -224,12 +230,12 @@ for loop in range(NUM_BOOTSTRAPS):
         x = np.arange(-10,2,0.01)
         nonfitx = knon.evaluate(x)
         # define lower bound empirical fold change threshold:  minimum FC where knon is above threshold
-        f = where( nonfitx > FC_THRESH)
+        f = np.where( nonfitx > FC_THRESH)
         xmin = round_to_hundredth( min(x[f]) )
         # define upper bound empirical fold change threshold:  minimum value of log2(ess/non)
         subx = np.arange( xmin, max(x[f]), 0.01)
-        logratio_sample = log2( kess.evaluate(subx) / knon.evaluate(subx) )
-        f = where( logratio_sample == logratio_sample.min() )
+        logratio_sample = np.log2( kess.evaluate(subx) / knon.evaluate(subx) )
+        f = np.where( logratio_sample == logratio_sample.min() )
         xmax = round_to_hundredth( subx[f] )
         #
         # round foldchanges to nearest 0.01
@@ -237,12 +243,12 @@ for loop in range(NUM_BOOTSTRAPS):
         #
         logratio_lookup = {}
         for i in np.arange(xmin, xmax+0.01, 0.01):
-            logratio_lookup[round(i*100)] = log2( kess.evaluate(i) / knon.evaluate(i) )
+            logratio_lookup[round(i*100)] = np.log2( kess.evaluate(i) / knon.evaluate(i) )
         #
         # calculate BFs from lookup table for withheld test set
         #
         for g in genes_array[gene_test_idx]:
-            foldchanges = array( fc[g] )
+            foldchanges = np.array( fc[g] )
             foldchanges[foldchanges<xmin]=xmin
             foldchanges[foldchanges>xmax]=xmax
             bayes_factor = sum( [ logratio_lookup[ round( x * 100 ) ] for x in foldchanges ] )
